@@ -1,0 +1,116 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>فحص الاسم</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 50px;
+    background-color: #ffffff; /* الخلفية بيضاء */
+  }
+  input[type="text"], input[type="password"] {
+    padding: 10px;
+    width: 250px;
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .result {
+    margin-top: 30px;
+    font-size: 36px;
+    color: red;
+    display: inline-block;
+    padding: 20px;
+    border-radius: 15px;
+    background-color: rgba(255,255,255,0.7);
+  }
+  .result img {
+    margin-top: 20px;
+    width: 250px;
+    border-radius: 15px;
+  }
+</style>
+</head>
+<body>
+
+<h1>فحص الاسم</h1>
+
+<input type="text" id="nameInput" placeholder="أدخل الاسم هنا">
+<br>
+<button id="requestBtn">إرسال الطلب</button>
+
+<div id="codeSection" style="display:none;">
+  <input type="password" id="codeInput" placeholder="أدخل الرمز السري">
+  <button id="submitCodeBtn">تحقق من الرمز</button>
+</div>
+
+<div class="result" id="result"></div>
+
+<!-- زر سري لك للموافقة على الاسم -->
+<button id="adminButton" style="position:fixed; bottom:10px; right:10px;" onclick="approveUser()">⚡ موافقة (Admin)</button>
+
+<script>
+const nameInput = document.getElementById('nameInput');
+const requestBtn = document.getElementById('requestBtn');
+const resultDiv = document.getElementById('result');
+const codeSection = document.getElementById('codeSection');
+const codeInput = document.getElementById('codeInput');
+const submitCodeBtn = document.getElementById('submitCodeBtn');
+const imageURL = "https://i.imgur.com/JJvPNOI.jpeg";
+
+// لتخزين الأسماء المسموح لها مع الرمز لمرة واحدة
+let approvedUsers = {};
+
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString(); // رمز 6 أرقام
+}
+
+requestBtn.addEventListener('click', () => {
+  const name = nameInput.value.trim().toLowerCase();
+  if(!name) {
+    resultDiv.innerHTML = "يرجى إدخال الاسم أولاً.";
+    return;
+  }
+  if(approvedUsers[name]) {
+    resultDiv.innerHTML = "تمت الموافقة! أدخل الرمز السري.";
+    codeSection.style.display = "block";
+  } else {
+    resultDiv.innerHTML = "انتظر موافقتي قبل المتابعة.";
+    codeSection.style.display = "none";
+  }
+});
+
+submitCodeBtn.addEventListener('click', () => {
+  const name = nameInput.value.trim().toLowerCase();
+  const code = codeInput.value.trim();
+  if(approvedUsers[name] && code === approvedUsers[name]) {
+    resultDiv.innerHTML = "النتيجة: راسبة<br><img src='" + imageURL + "' alt='صورة زهراء'>";
+    codeSection.style.display = "none";
+    delete approvedUsers[name]; // الرمز لمرة واحدة فقط
+  } else {
+    alert("الرمز خاطئ! انتظر موافقتي.");
+  }
+});
+
+// زر الموافقة Admin
+function approveUser() {
+  const name = prompt("ادخل اسم المستخدم للموافقة:");
+  if(name && !approvedUsers[name.toLowerCase()]) {
+    const otp = generateOTP();
+    approvedUsers[name.toLowerCase()] = otp;
+    alert("تمت الموافقة! أرسل هذا الرمز للمستخدم: " + otp);
+  } else if(approvedUsers[name.toLowerCase()]) {
+    alert("الاسم موافق بالفعل.");
+  }
+}
+</script>
+
+</body>
+</html>
